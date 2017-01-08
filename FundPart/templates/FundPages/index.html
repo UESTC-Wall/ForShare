@@ -1,0 +1,24 @@
+{% extends "FundPages/base.html" %}
+
+{% block page-content %}
+
+<div class="header-bottom">
+	<div class="container">
+		<div class="logo wow fadeInDown"  data-wow-duration=".8s" data-wow-delay=".2s">
+			<h1><a href="index.html">资源分享</a></h1>
+			<p><label class="of"></label>这里有大佬们精心挑选的资源哦~<label class="on"></label></p>
+		</div>
+	</div>
+</div>
+	{% for item in publish_list %}
+	<div class="tc-ch wow fadeInDown"  data-wow-duration=".8s" data-wow-delay=".2s">
+	<h6>BY <a href="singlepage.html">{{item.username}} </a>{{item.urlpublish_time | date:"m-d h:i"}}</h6>
+	<p>{{item.urlcomment}}</p>
+	<div class="bht1">
+		<a href={{item.urlmessage}}>了解详情</a>
+	</div>
+	<div class="clearfix"></div>
+	</div>
+	{% endfor %}
+{% endblock %}
+
