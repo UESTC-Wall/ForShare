@@ -1,1 +1,59 @@
+<!--A Design by W3layouts
+Author: W3layout
+Author URL: http://w3layouts.com
+License: Creative Commons Attribution 3.0 Unported
+License URL: http://creativecommons.org/licenses/by/3.0/
+-->
+<!DOCTYPE html>
+<html>
 
+<head>
+    <title>登录</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta name="keywords" content="Clean Free Ui Kit Responsive web template, Bootstrap Web Templates, Flat Web Templates, Andriod Compatible web template, 
+Smartphone Compatible web template, free webdesigns for Nokia, Samsung, LG, SonyErricsson, Motorola web design" />
+    <script type="application/x-javascript">
+    addEventListener("load", function() {
+        setTimeout(hideURLbar, 0);
+    }, false);
+
+    function hideURLbar() {
+        window.scrollTo(0, 1);
+    }
+    </script>
+    <link href="/static/app/content/bootstrap.css" rel='stylesheet' type='text/css' />
+    <link href="/static/app/content/loginstyle.css" rel='stylesheet' type='text/css' />
+    <script src="/static/app/scripts/jquery.min.js"></script>
+</head>
+<!--content-starts-->
+<div class="content">
+    <div class="content-main">
+        <div class="col-md-4 col-md-offset-4">
+            <div class="account">
+                <h3>登 录</h3>
+                <div class="password">
+                    <form action="" method="POST">
+                        {%csrf_token%}
+                        <div class="sign">
+                        	<i></i>
+                            <input type="text" name="username" placeholder="用户名">
+                        </div>
+                        <div class="sign password">
+                            <i class="psd"></i>
+                            <input type="password" name="password" placeholder="密码">
+                        </div>
+                        <input type="submit" value="Submit">
+                    </form>
+                </div>
+                <div class="forgot">
+                    <a href="#">忘记用户名或密码？</a>
+                </div>
+            </div>
+        </div>
+        <div class="clearfix"></div>
+    </div>
+</div>
+</body>
+
+</html>

@@ -13,8 +13,9 @@ from datetime import datetime
 admin.autodiscover()
 
 urlpatterns = [
+
     url(r'^admin/',include(admin.site.urls)),
-    # url(r'^$', 'FundPart.views.home', name='home'),
+    url(r'^$', 'FundPart.views.index'),
     # url(r'^contact$', 'FundPart.views.contact', name='contact'),
     # url(r'^about', 'FundPart.views.about', name='about'),
     url(r'^login/$',
@@ -29,12 +30,7 @@ urlpatterns = [
            }
        },
        name='login'),
-    url(r'^logout$',
-       'django.contrib.auth.views.logout',
-       {
-           'next_page': '/index/1',
-       },
-       name='logout'),
+  
     url(r'^fundpart/',include('FundPart.FundPartUrls')),
 ]
 
