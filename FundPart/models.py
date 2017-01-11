@@ -1,6 +1,5 @@
-# -*- coding:utf-8 -*- 
-from __future__ import unicode_literals
-
+import os
+from django.conf import settings
 from django.db import models
 from django.contrib.auth.models import User
 
@@ -18,28 +17,32 @@ class UserList(User):
 	user_class = models.IntegerField()
 
 	class Meta:
-		permissions = (
-			("can_deliver_message","can_deliver_message"),
-			)
-		default_permissions = ('change')
-		ordering = ['user_rank_score','user_create_date']
+		ordering = ['user_create_date']
 
 
 class UrlPublish(models.Model):
-	username = models.CharField(max_length=100)
+	username = models.ForeignKey(UserList,max_length=100)
 	urlmessage = models.URLField()
-	urlcomment = models.CharField(max_length=100)
+	urlintroduce = models.CharField(max_length=100)
 	urlpublish_time = models.DateTimeField(auto_now_add=True)
 	urlreadcount= models.IntegerField(default=0,editable=False)
 
+	class Meta:
+		ordering = ['-urlpublish_time']
+
 class UrlComment(models.Model):
-    blog = models.ForeignKey(UrlPublish, on_delete = models.CASCADE)
-    username = models.TextField(max_length=20)
+
+    comment1 = models.ForeignKey(UrlPublish, on_delete = models.CASCADE)
+    username = models.ForeignKey(UserList)
     comment_time = models.DateTimeField(auto_now_add=True)
     content = models.TextField(max_length = 2000)
+    class Meta:
+    	ordering = ['id'] 
 
-class SubComment(models.Model):
-    comment = models.ForeignKey(UrlComment, on_delete = models.CASCADE)
-    nickname = models.TextField(max_length=20)
-    comment_time = models.DateTimeField(auto_now_add=True)
-    content = models.TextField(max_length=2000)
+# class SubComment(models.Model):
+#     comment2 = models.ForeignKey(UrlComment, on_delete = models.CASCADE)
+#     username = models.ForeignKey(UserList)
+#     comment_time = models.DateTimeField(auto_now_add=True)
+#     content = models.TextField(max_length=2000)
+#     class Meta:
+#     	ordering = ['id']
