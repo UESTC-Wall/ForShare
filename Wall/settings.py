@@ -32,6 +32,12 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'FundPart',
+    'rest_framework',
+    'rest_framework_docs',
+    # 'rest_framework_swagger',
+    # 'xadmin',
+    # 'crispy_forms',
+    # 'reversion',
 ]
 
 MIDDLEWARE_CLASSES = [
@@ -77,9 +83,9 @@ DATABASES = {
         'ENGINE': 'django.db.backends.mysql',
         'NAME': 'Wall',
         'USER': 'root',
-        'PASSWORD': '',
+        'PASSWORD': '5201314ytt!@',
         'HOST':'',
-        'PORT':'3306',
+        'PORT':'3306'
     }
 }
 
@@ -128,7 +134,8 @@ LOGGING = {
 
 TEST_RUNNER = 'django.test.runner.DiscoverRunner'
 
-LANGUAGE_CODE = 'en-us'
+
+LANGUAGE_CODE = 'zh-Hans'
 
 TIME_ZONE = 'UTC'
 
@@ -153,6 +160,24 @@ STATICFILES_FINDERS = (
     'django.contrib.staticfiles.finders.AppDirectoriesFinder',
 #    'django.contrib.staticfiles.finders.DefaultStorageFinder',
 )
+
+
+
+REST_FRAMEWORK_DOCS = {
+    'HIDE_DOCS': False
+}
+
+REST_FRAMEWORK = {
+    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.LimitOffsetPagination',
+    'PAGE_SIZE': 8,
+    'FILTER_BACKEND': 'rest_framework.filters.DjangoFilterBackend',
+    'DATETIME_FORMAT': ("%Y-%m-%d %H:%M:%S"),
+    'DEFAULT_FILTER_BACKENDS': ('django_filters.rest_framework.DjangoFilterBackend',),
+    'DEFAULT_PERMISSION_CLASSES':(
+        'rest_framework.permissions.DjangoModelPermissionsOrAnonReadOnly',
+    )
+}
+
 
 
 
