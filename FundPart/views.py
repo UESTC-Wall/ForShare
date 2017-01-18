@@ -4,19 +4,27 @@ from django.http import HttpResponse, Http404, HttpResponseRedirect
 from django.contrib.auth import authenticate,login,logout
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render,redirect
-from .models import UrlPublish,UserList
-from django.core.files.base import ContentFile        
+from django.contrib.auth.models import Group
+from django.core.files.base import ContentFile   
+from django.template import loader, Context  
+
+from rest_framework.response import Response
+from rest_framework.decorators import api_view
+from rest_framework.views import APIView
+from rest_framework import viewsets,generics, status   
+from rest_framework import permissions
+
+from django_filters.rest_framework import DjangoFilterBackend
+
+
+from FundPart.serializers import *
+from FundPart.models import *
 
 def getImg(request):
 	assert isinstance(request,HttpResponse)
-	file_content = ContentFile(request.FILES['img'].read())  
-    img = ImageStore(name = request.FILES['img'].name,img=request.FILES['img'])  
-    img.save()
-
-
-# Create your views here.
-# def home(request):
-#     return
+	#file_content = ContentFile(request.FILES['img'].read())  
+    #img = ImageStore(name = request.FILES['img'].name,img=request.FILES['img'])  
+    #img.save()
 
 
 # def contact(request):
@@ -52,20 +60,22 @@ def getImg(request):
 def index(request,page_num =1):
     start_url = (int(page_num) - 1) * 10
     end_url = int(page_num) * 10
-    publish_list = UrlPublish.objects.order_by('urlpublish_time')[start_url:end_url-1]
-   	userinfo = UserList.objects.get(username=request.session['username'])
-   	context = {'publish_list': publish_list,'userinfo':}
+    try:
+    	publish_list = UrlPublish.objects.order_by('-urlpublish_time')[start_url:end_url-1]
+    except Exception,e:
+    	publish_list = UrlPublish.objects.order_by('-urlpublish_time')[start_url:]
+    context = ({'publish_list': publish_list})
     return render(request,'FundPages/index.html',context) 
  
 
 ##搜索
-def search_blog(request):
-	blog_list=[]
-    search_word = request.GET.get("search_word")
-    sql = "SELECT * FROM blog_blog WHERE blog_content LIKE '%%" + search_word + "%%' or blog_title LIKE '%%" + search_word + "%%'"
-    urlintroduce = UrlPublish.objects.raw(sql).order_by('publish_time')
-    context = {'blog_list': blog_list}
-    return render(request, 'blog/index.html', context)
+# def search_blog(request):
+# 	blog_list=[]
+#     search_word = request.GET.get("search_word")
+#     sql = "SELECT * FROM FundPart_UrlPublsih WHERE urlcomment LIKE '%%" + search_word + "%%' or blog_title LIKE '%%" + search_word + "%%'"
+#     urlintroduce = UrlPublish.objects.raw(sql).order_by('publish_time')
+#     context = ({'blog_list': blog_list})
+#     return render(request, 'FundPages/index.html', context)
 
 ##登陆
 def userlogin(request):
@@ -87,6 +97,7 @@ def userlogin(request):
 def userlogot(request):
 	assert isinstance(request,HttpResponse)
 	if request.method == 'GET':
+		logout(request,request.user)
 		logout(request,request.session['username'])
 		del request.session['username']
 		return redirect('fundpart/index/1')
@@ -98,30 +109,37 @@ def userregister(request):
 	if request.method == 'GET':
 		return render(request, 'FundPages/register.html')
 	if request.method == 'POST':
-		username = request.POST.get['username']
-		password = request.POST.get['password']
-		if UserList.objects.get(username=username):
+		username = request.POST['username']
+		password = request.POST['password']
+		group = Group.objects.get(name=u'基础用户组')
+		if UserList.objects.filter(username=username):
 			return render(request,'register.html',{'msg':"Name Exists"})
-		user = UserList(username=username, password=password)
+		user = UserList(username=username, password=password,groups=group)
 		user.save()
-		return redirect('/fundpart/login')
+		return render(request, 'FundPages/write.html')
 
 ##url发布
+@login_required()
 def urlpublish(request):
 	if request.method == 'GET':
-		return redirect('fundpart/index/1')
+		return render(request, 'FundPages/write.html')
 	if request.method == 'POST':
-		username = request.session['username'] 
-		urlcontent = request.POST.get['urlcontent']
-		urlintroduce = request.POST.get['urlintroduce']
-		pub = UrlPublish.objects.create(
-			username = username,
-			urlmessage = urlcontent,
-			urlcomment = urlintroduce
-			)
-		pub.save()
-		return HttpResponse("Success!")
-
+		name = request.session['username'] 
+		urlcontent = request.POST['urlcontent']
+		urlintroduce = request.POST['urlintroduce']
+		try:
+			print 1
+			user = UserList.objects.get(username=name)
+			UrlPublish.objects.get_or_create(
+				username = user,
+				urlmessage = urlcontent,
+				urlintroduce = urlintroduce
+				)
+			context = ({'msg': 'Thank You!'})
+		except Exception,e:
+			print e
+			context = ({'msg':'Something Wrong...'})
+		return render(request, 'FundPages/write.html', context)
 
 ###一级评论
 def comment(request):  
@@ -147,4 +165,52 @@ def sub_comment(request):
 ##阅读量
 def readconunt(request,urlid):
 	assert isinstance(request,HttpResponse)
-	UrlPublish.objects.filter(id=urlid).update(urlreadcount+=1).save()
+	UrlPublish.objects.filter(id=urlid).update(urlreadcount = urlreadcount+1).save()
+
+
+class UsersList(generics.ListCreateAPIView):
+	queryset = UserList.objects.all()
+	serializer_class = UserSerializer
+	permission_classes =  (
+		permissions.IsAuthenticatedOrReadOnly,
+	)
+
+
+class UsersDetail(generics.RetrieveUpdateDestroyAPIView):
+	queryset = UserList.objects.all()
+	serializer_class = UserSerializer
+	permission_classes =  (
+		permissions.IsAuthenticatedOrReadOnly,
+	) 
+
+
+class UrlPublishList(generics.ListCreateAPIView):
+	queryset = UrlPublish.objects.all()
+	serializer_class = UrlPublishSerializer
+	permission_classes = (
+		permissions.IsAuthenticatedOrReadOnly,
+	)
+
+class UrlPublishDetail(generics.RetrieveUpdateDestroyAPIView):
+	queryset = UrlPublish.objects.all()
+	serializer_class = UrlPublishSerializer
+	permission_classes = (
+		permissions.IsAuthenticatedOrReadOnly,
+	)
+
+class UrlCommentList(generics.ListCreateAPIView):
+	queryset = UrlComment.objects.all()
+	serializer_class = UrlCommentSerializer
+	filter_backends = (DjangoFilterBackend,)
+	filter_fields = ('comment1',)
+	permission_classes = (
+		permissions.IsAuthenticatedOrReadOnly,
+	)
+
+class UrlCommentDetail(generics.RetrieveUpdateDestroyAPIView):
+	queryset = UrlComment.objects.all()
+	serializer_class = UrlCommentSerializer
+	filter_fields = ('comment1')
+	permission_classes = (
+		permissions.IsAuthenticatedOrReadOnly,
+	)

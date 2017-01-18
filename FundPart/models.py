@@ -19,9 +19,14 @@ class UserList(User):
 	class Meta:
 		ordering = ['user_create_date']
 
+	def __unicode__(self):
+		return self.username 
+
+
+
 
 class UrlPublish(models.Model):
-	username = models.ForeignKey(UserList,max_length=100)
+	username = models.ForeignKey(UserList,editable=False,on_delete=models.CASCADE)
 	urlmessage = models.URLField()
 	urlintroduce = models.CharField(max_length=100)
 	urlpublish_time = models.DateTimeField(auto_now_add=True)
@@ -30,14 +35,20 @@ class UrlPublish(models.Model):
 	class Meta:
 		ordering = ['-urlpublish_time']
 
-class UrlComment(models.Model):
+	def __unicode__(self):
+		return u'%s %s %s' %(self.username.username,self.urlpublish_time,self.urlintroduce)
 
-    comment1 = models.ForeignKey(UrlPublish, on_delete = models.CASCADE)
-    username = models.ForeignKey(UserList)
+class UrlComment(models.Model):
+    comment1 = models.ForeignKey(UrlPublish,editable=False,on_delete = models.CASCADE)
+    username = models.ForeignKey(UserList,editable=False)
     comment_time = models.DateTimeField(auto_now_add=True)
     content = models.TextField(max_length = 2000)
     class Meta:
-    	ordering = ['id'] 
+    	ordering = ['id']  
+
+    def __unicode__(self):
+    	return u'%s %s %s' %(self.username,self.comment_time,self.content)
+
 
 # class SubComment(models.Model):
 #     comment2 = models.ForeignKey(UrlComment, on_delete = models.CASCADE)
