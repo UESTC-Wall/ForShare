@@ -2,28 +2,35 @@ from rest_framework import serializers
 
 from FundPart.models import *
 
+class LoginSerializer(serializers.ModelSerializer):
+    username = serializers.CharField(required=False, max_length=1024)
+    password = serializers.CharField(required=False, max_length=1024)
+
+    class Meta:
+        model = UserList
+        fields = ('id', 'username', 'password')
+
 class UserSerializer(serializers.ModelSerializer):
-    # tracks = serializers.HyperlinkedRelatedField(
-    #     	many=True,
-    #     	allow_null=True,
-    #     	read_only=True,
-    #     	view_name='track-urlpublish'
-    # 	)
+    urlpublish_set = serializers.StringRelatedField(
+            many=True,
+            allow_null=True,
+            read_only=True,   
+    	)
     class Meta:
         model = UserList  
-        fields = ('id','username','user_rank_score','user_email','user_class')
+        fields = ('id','username','user_rank_score','user_email','user_class','urlpublish_set')
 
 
 class UrlPublishSerializer(serializers.ModelSerializer):
- # 	tracks = serializers.HyperlinkedRelatedField(
- #    	many=True,
- #    	allow_null=True,
- #    	read_only=True,
- #    	view_name='track-urlcomment'
-	# )
-	class Meta:
+    urlcomment_set = serializers.StringRelatedField(
+            many=True,
+            allow_null=True,
+            read_only=True,
+        )
+    
+    class Meta:
 		model = UrlPublish
-		fields = ('id','username','urlmessage','urlintroduce','urlpublish_time','urlreadcount')
+		fields = ('username','urlmessage','urlintroduce','urlpublish_time','urlreadcount','urlcomment_set')
 
 
 class UrlCommentSerializer(serializers.ModelSerializer):

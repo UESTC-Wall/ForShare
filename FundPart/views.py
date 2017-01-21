@@ -27,36 +27,6 @@ def getImg(request):
     #img.save()
 
 
-# def contact(request):
-#     """Renders the contact page."""
-#     assert isinstance(request, HttpRequest)
-#     return render(
-#         request,
-#         'webpage/contact.html',
-#         context_instance=RequestContext(request,
-#             {
-#                 'title': 'Contact',
-#                 'message': 'Your contact page.',
-#                 'year': datetime.now().year,
-#             }
-#         )
-#     )
-
-
-# def about(request):
-#     """Renders the about page."""
-#     assert isinstance(request, HttpRequest)
-#     return render(
-#         request,
-#         'webpage1/about.html',
-#         context_instance=RequestContext(request, {
-#                     'title': 'About',
-#                     'message': 'Your application description page.',
-#                     'year': datetime.now().year, })
-# )
-
-
-##目录
 def index(request,page_num =1):
     start_url = (int(page_num) - 1) * 10
     end_url = int(page_num) * 10
@@ -111,12 +81,15 @@ def userregister(request):
 	if request.method == 'POST':
 		username = request.POST['username']
 		password = request.POST['password']
-		group = Group.objects.get(name=u'基础用户组')
-		if UserList.objects.filter(username=username):
-			return render(request,'register.html',{'msg':"Name Exists"})
-		user = UserList(username=username, password=password,groups=group)
+		# if UserList.objects.filter(username=username):
+		# 	return render(request,'register.html',{'msg':"Name Exists"})
+		# user = UserList.objects.create(username=username, password=password,user_class=20152203)
+		# user.save()
+		user = UserList.objects.get(username=username)
+		user.groups.add(2)
 		user.save()
-		return render(request, 'FundPages/write.html')
+
+		return redirect('/fundpart/userlogin/')
 
 ##url发布
 @login_required()
@@ -167,6 +140,23 @@ def readconunt(request,urlid):
 	assert isinstance(request,HttpResponse)
 	UrlPublish.objects.filter(id=urlid).update(urlreadcount = urlreadcount+1).save()
 
+class LoginViewSet(APIView):
+    queryset = User.objects.all()
+    serializer_class = LoginSerializer
+
+    def post(self, request):
+        try:
+            username = request.data.get('username')
+            password = request.data.get('password')
+            user = UserList.objects.get(username__iexact=username)
+            if user.check_password(password):
+                print user
+                serializer = LoginSerializer({'id': user.id, 'username': user.username})
+                return Response(serializer.data)
+            return Response(status=status.HTTP_401_UNAUTHORIZED)
+        except User.DoesNotExist:
+            return Response(status=status.HTTP_401_UNAUTHORIZED)
+            
 
 class UsersList(generics.ListCreateAPIView):
 	queryset = UserList.objects.all()
