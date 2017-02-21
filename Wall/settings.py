@@ -12,7 +12,7 @@ DEBUG = True
 
 LOGIN_URL = '/fundpart/userlogin/'
 
-IME_ZONE = 'Asia/Shanghai'
+TIME_ZONE = 'Asia/Shanghai'
 
 MANAGERS = (
      ('ccyutaotao', '2622355408@qq.com'),
@@ -142,12 +142,12 @@ TEST_RUNNER = 'django.test.runner.DiscoverRunner'
 
 LANGUAGE_CODE = 'zh-Hans'
 
-TIME_ZONE = 'UTC'
 
 USE_I18N = True
 
 USE_L10N = True
-USE_TZ = True
+
+USE_TZ = False
 
 
 
@@ -163,7 +163,7 @@ MEDIA_ROOT = path.join(PROJECT_ROOT, 'media').replace('\\', '/')
 STATICFILES_FINDERS = (
     'django.contrib.staticfiles.finders.FileSystemFinder',
     'django.contrib.staticfiles.finders.AppDirectoriesFinder',
-#    'django.contrib.staticfiles.finders.DefaultStorageFinder',
+    #'django.contrib.staticfiles.finders.DefaultStorageFinder',
 )
 
 
@@ -179,8 +179,11 @@ REST_FRAMEWORK = {
     'DATETIME_FORMAT': ("%Y-%m-%d %H:%M:%S"),
     'DEFAULT_FILTER_BACKENDS': ('django_filters.rest_framework.DjangoFilterBackend',),
     'DEFAULT_PERMISSION_CLASSES':(
-        'rest_framework.permissions.DjangoModelPermissionsOrAnonReadOnly',
-    )
+         'rest_framework.permissions.IsAuthenticatedOrReadOnly',
+    ),
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework.authentication.BasicAuthentication',
+    ),
 }
 
 
